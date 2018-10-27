@@ -1,4 +1,4 @@
-# Copyright (C) 2014 - 2017, Teddysun <i@teddysun.com>
+# Copyright (C) 2013 - 2018 Teddysun <i@teddysun.com>
 # 
 # This file is part of the LAMP script.
 #
@@ -28,62 +28,70 @@ depends_prefix=/usr/local
 web_root_dir=/data/www/default
 
 #Download root URL
-download_root_url="http://dl.lamp.sh/files"
+download_root_url="https://dl.lamp.sh/files"
 
 #parallel compile option,1:enable,0:disable
 parallel_compile=1
 
 ##Software version
 #nghttp2
-nghttp2_filename="nghttp2-1.25.0"
+nghttp2_filename="nghttp2-1.34.0"
 #openssl
-openssl_filename="openssl-1.0.2l"
-#apache2.2
-apache2_2_filename="httpd-2.2.34"
+openssl_filename="openssl-1.0.2p"
 #apache2.4
-apache2_4_filename="httpd-2.4.27"
+apache2_4_filename="httpd-2.4.37"
 #mysql5.5
-mysql5_5_filename="mysql-5.5.57"
+mysql5_5_filename="mysql-5.5.62"
 #mysql5.6
-mysql5_6_filename="mysql-5.6.37"
+mysql5_6_filename="mysql-5.6.42"
 #mysql5.7
-mysql5_7_filename="mysql-5.7.19"
+mysql5_7_filename="mysql-5.7.24"
+#mysql8.0
+mysql8_0_filename="mysql-8.0.13"
 #mariadb5.5
-mariadb5_5_filename="mariadb-5.5.57"
+mariadb5_5_filename="mariadb-5.5.62"
 #mariadb10.0
-mariadb10_0_filename="mariadb-10.0.32"
+mariadb10_0_filename="mariadb-10.0.36"
 #mariadb10.1
-mariadb10_1_filename="mariadb-10.1.26"
+mariadb10_1_filename="mariadb-10.1.36"
 #mariadb10.2
-mariadb10_2_filename="mariadb-10.2.8"
+mariadb10_2_filename="mariadb-10.2.18"
+#mariadb10.3
+mariadb10_3_filename="mariadb-10.3.10"
 #percona5.5
-percona5_5_filename="Percona-Server-5.5.57-38.9"
+percona5_5_filename="Percona-Server-5.5.61-38.13"
 #percona5.6
-percona5_6_filename="Percona-Server-5.6.37-82.2"
+percona5_6_filename="Percona-Server-5.6.41-84.1"
 #percona5.7
-percona5_7_filename="Percona-Server-5.7.19-17"
-#php5.3
-php5_3_filename="php-5.3.29"
-#php5.4
-php5_4_filename="php-5.4.45"
-#php5.5
-php5_5_filename="php-5.5.38"
+percona5_7_filename="Percona-Server-5.7.23-23"
 #php5.6
-php5_6_filename="php-5.6.31"
+php5_6_filename="php-5.6.38"
 #php7.0
-php7_0_filename="php-7.0.23"
+php7_0_filename="php-7.0.32"
 #php7.1
-php7_1_filename="php-7.1.9"
+php7_1_filename="php-7.1.23"
+#php7.2
+php7_2_filename="php-7.2.11"
 #phpMyAdmin
-phpmyadmin_filename="phpMyAdmin-4.4.15.10-all-languages"
-phpmyadmin_filename2="phpMyAdmin-4.7.4-all-languages"
-#opcache
-opcache_filename="zendopcache-7.0.5"
+phpmyadmin_filename="phpMyAdmin-4.8.3-all-languages"
+#kodexplorer
+kod_version=$(wget --no-check-certificate -qO- https://api.github.com/repos/kalcaddle/kodfile/releases/latest | grep 'tag_name' | cut -d\" -f4)
+[ -z "${kod_version}" ] && kod_version="4.35"
+kodexplorer_filename="kodfile-${kod_version}"
+set_hint ${kodexplorer_filename} "kodexplorer-${kod_version}"
 
 #apr
-apr_filename="apr-1.6.2"
+apr_filename="apr-1.6.5"
 #apr-util
-apr_util_filename="apr-util-1.6.0"
+apr_util_filename="apr-util-1.6.1"
+#mod_wsgi
+mod_wsgi_filename="mod_wsgi-4.6.4"
+#mod_jk
+mod_jk_filename="tomcat-connectors-1.2.43-src"
+set_hint ${mod_jk_filename} "mod_jk-1.2.43"
+#mod_security
+mod_security_filename="modsecurity-2.9.2"
+set_hint ${mod_security_filename} "mod_security-2.9.2"
 #mhash
 mhash_filename="mhash-0.9.9.9"
 #libmcrypt
@@ -91,71 +99,71 @@ libmcrypt_filename="libmcrypt-2.5.8"
 #mcrypt
 mcrypt_filename="mcrypt-2.6.8"
 #pcre
-pcre_filename="pcre-8.40"
+pcre_filename="pcre-8.42"
 #re2c
-re2c_filename='re2c-0.16'
+re2c_filename='re2c-1.0.2'
 #imap
 imap_filename='imap-2007f'
 #libiconv
 libiconv_filename="libiconv-1.15"
 #swoole
-swoole_filename="swoole-src-1.9.18"
-set_hint ${swoole_filename} "php-swoole-1.9.18"
+swoole_filename="swoole-src-2.2.0"
+set_hint ${swoole_filename} "php-swoole-2.2.0"
 #xcache
 xcache_filename="xcache-3.2.0"
 #xdebug
-xdebug_filename="xdebug-2.5.3"
+xdebug_filename="xdebug-2.5.5"
+xdebug_filename2="xdebug-2.6.1"
 #ImageMagick
-ImageMagick_filename="ImageMagick-7.0.6-6"
+ImageMagick_filename="ImageMagick-7.0.8-12"
 php_imagemagick_filename="imagick-3.4.3"
 set_hint ${php_imagemagick_filename} "php-${php_imagemagick_filename}"
 #GraphicsMagick
-GraphicsMagick_filename="GraphicsMagick-1.3.26"
+GraphicsMagick_filename="GraphicsMagick-1.3.30"
 php_graphicsmagick_filename="gmagick-1.1.7RC3"
-php_graphicsmagick_filename2="gmagick-2.0.4RC1"
+php_graphicsmagick_filename2="gmagick-2.0.5RC1"
 set_hint ${php_graphicsmagick_filename} "php-${php_graphicsmagick_filename}"
 set_hint ${php_graphicsmagick_filename2} "php-${php_graphicsmagick_filename2}"
 #ionCube
 ionCube_filename="ioncube_loaders"
 ionCube32_filename="ioncube_loaders_lin_x86"
 ionCube64_filename="ioncube_loaders_lin_x86-64"
-#ZendGuardLoader
-ZendGuardLoader_filename="ZendGuardLoader"
-ZendGuardLoader53_32_filename="ZendGuardLoader-php-5.3-linux-glibc23-i386"
-ZendGuardLoader53_64_filename="ZendGuardLoader-php-5.3-linux-glibc23-x86_64"
-ZendGuardLoader54_32_filename="ZendGuardLoader-70429-PHP-5.4-linux-glibc23-i386"
-ZendGuardLoader54_64_filename="ZendGuardLoader-70429-PHP-5.4-linux-glibc23-x86_64"
-ZendGuardLoader55_32_filename="zend-loader-php5.5-linux-i386"
-ZendGuardLoader55_64_filename="zend-loader-php5.5-linux-x86_64"
-ZendGuardLoader56_32_filename="zend-loader-php5.6-linux-i386"
-ZendGuardLoader56_64_filename="zend-loader-php5.6-linux-x86_64"
 #libevent
 libevent_filename="libevent-2.0.22-stable"
 #memcached
-memcached_filename="memcached-1.5.0"
+memcached_filename="memcached-1.5.10"
 #libmemcached
 libmemcached_filename="libmemcached-1.0.18"
-#php-memcache
-php_memcache_filename="memcache-3.0.8"
 #php-memcached
-php_memcached_filename="memcached-3.0.3"
+php_memcached_filename="memcached-2.2.0"
+php_memcached_filename2="memcached-3.0.4"
 set_hint ${php_memcached_filename} "php-${php_memcached_filename}"
+set_hint ${php_memcached_filename2} "php-${php_memcached_filename2}"
 #redis
-redis_filename="redis-3.2.10"
+redis_filename="redis-4.0.11"
 #php-redis
 php_redis_filename="redis-2.2.8"
-php_redis_filename2="redis-3.1.3"
+php_redis_filename2="redis-4.1.1"
 set_hint ${php_redis_filename} "php-${php_redis_filename}"
 set_hint ${php_redis_filename2} "php-${php_redis_filename2}"
 #php-mongodb
-php_mongo_filename="mongodb-1.3.0beta1"
+php_mongo_filename="mongodb-1.5.2"
 set_hint ${php_mongo_filename} "php-${php_mongo_filename}"
+#php-libsodium
+libsodium_filename="libsodium-1.0.16"
+php_libsodium_filename="libsodium-php-2.0.11"
 
 
 #software array setting
 apache_arr=(
-${apache2_2_filename}
 ${apache2_4_filename}
+do_not_install
+)
+
+apache_modules_arr=(
+${mod_wsgi_filename}
+${mod_security_filename}
+${mod_jk_filename}
 do_not_install
 )
 
@@ -163,10 +171,12 @@ mysql_arr=(
 ${mysql5_5_filename}
 ${mysql5_6_filename}
 ${mysql5_7_filename}
+${mysql8_0_filename}
 ${mariadb5_5_filename}
 ${mariadb10_0_filename}
 ${mariadb10_1_filename}
 ${mariadb10_2_filename}
+${mariadb10_3_filename}
 ${percona5_5_filename}
 ${percona5_6_filename}
 ${percona5_7_filename}
@@ -174,12 +184,10 @@ do_not_install
 )
 
 php_arr=(
-${php5_3_filename}
-${php5_4_filename}
-${php5_5_filename}
 ${php5_6_filename}
 ${php7_0_filename}
 ${php7_1_filename}
+${php7_2_filename}
 do_not_install
 )
 
@@ -188,9 +196,12 @@ ${phpmyadmin_filename}
 do_not_install
 )
 
+kodexplorer_arr=(
+${kodexplorer_filename}
+do_not_install
+)
+
 php_modules_arr=(
-${opcache_filename}
-${ZendGuardLoader_filename}
 ${ionCube_filename}
 ${xcache_filename}
 ${php_imagemagick_filename}
@@ -198,6 +209,7 @@ ${php_graphicsmagick_filename}
 ${php_memcached_filename}
 ${php_redis_filename}
 ${php_mongo_filename}
+${php_libsodium_filename}
 ${swoole_filename}
 ${xdebug_filename}
 do_not_install

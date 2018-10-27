@@ -1,4 +1,4 @@
-# Copyright (C) 2014 - 2017, Teddysun <i@teddysun.com>
+# Copyright (C) 2013 - 2018 Teddysun <i@teddysun.com>
 # 
 # This file is part of the LAMP script.
 #
@@ -22,30 +22,16 @@ php_modules_preinstall_settings(){
         echo
         echo "${php} available modules:"
         echo
-        if [ "${php}" == "${php5_5_filename}" ]; then
-            php_modules_arr=(${php_modules_arr[@]#${opcache_filename}})
-        elif [ "${php}" == "${php5_6_filename}" ]; then
-            php_modules_arr=(${php_modules_arr[@]#${opcache_filename}})
-        elif [ "${php}" == "${php7_0_filename}" ]; then
-            # delete some modules & change some module version
-            php_modules_arr=(${php_modules_arr[@]#${opcache_filename}})
+        # delete some modules & change some module version
+        if [[ "${php}" == "${php5_6_filename}" ]]; then
+            php_modules_arr=(${php_modules_arr[@]#${php_libsodium_filename}})
+            php_modules_arr=(${php_modules_arr[@]#${swoole_filename}})
+        else
             php_modules_arr=(${php_modules_arr[@]#${xcache_filename}})
-            php_modules_arr=(${php_modules_arr[@]#${ZendGuardLoader_filename}})
-            php_modules_arr=(${php_modules_arr[@]#${php_memcached_filename}})
-            php_modules_arr=(${php_modules_arr[@]#${php_mongo_filename}})
+            php_modules_arr=(${php_modules_arr[@]/#${xdebug_filename}/${xdebug_filename2}})
             php_modules_arr=(${php_modules_arr[@]/#${php_redis_filename}/${php_redis_filename2}})
+            php_modules_arr=(${php_modules_arr[@]/#${php_memcached_filename}/${php_memcached_filename2}})
             php_modules_arr=(${php_modules_arr[@]/#${php_graphicsmagick_filename}/${php_graphicsmagick_filename2}})
-        elif [ "${php}" == "${php7_1_filename}" ]; then
-            # delete some modules & change some module version
-            php_modules_arr=(${php_modules_arr[@]#${opcache_filename}})
-            php_modules_arr=(${php_modules_arr[@]#${xcache_filename}})
-            php_modules_arr=(${php_modules_arr[@]#${ZendGuardLoader_filename}})
-            php_modules_arr=(${php_modules_arr[@]#${ionCube_filename}})
-            php_modules_arr=(${php_modules_arr[@]#${php_memcached_filename}})
-            php_modules_arr=(${php_modules_arr[@]#${php_mongo_filename}})
-            php_modules_arr=(${php_modules_arr[@]/#${php_redis_filename}/${php_redis_filename2}})
-            php_modules_arr=(${php_modules_arr[@]/#${php_graphicsmagick_filename}/${php_graphicsmagick_filename2}})
-
         fi
         display_menu_multi php_modules last
     fi
@@ -57,31 +43,37 @@ phpmyadmin_preinstall_settings(){
     if [[ "${php}" == "do_not_install" ]]; then
         phpmyadmin="do_not_install"
     else
-        if [[ "${php}" != "${php5_3_filename}" && "${php}" != "${php5_4_filename}" ]]; then
-            phpmyadmin_arr=(${phpmyadmin_arr[@]/#${phpmyadmin_filename}/${phpmyadmin_filename2}})
-        fi
         display_menu phpmyadmin 1
     fi
 }
 
+#Pre-installation kodexplorer
+kodexplorer_preinstall_settings(){
+    if [[ "${php}" == "do_not_install" ]]; then
+        kodexplorer="do_not_install"
+    else
+        display_menu kodexplorer 1
+    fi
+}
 
 install_php_modules(){
     local phpConfig=${1}
-    if_in_array "${opcache_filename}" "${php_modules_install}" && install_opcache "${phpConfig}"
-    if_in_array "${ZendGuardLoader_filename}" "${php_modules_install}" && install_ZendGuardLoader "${phpConfig}"
     if_in_array "${ionCube_filename}" "${php_modules_install}" && install_ionCube "${phpConfig}"
     if_in_array "${xcache_filename}" "${php_modules_install}" && install_xcache "${phpConfig}"
     if_in_array "${php_imagemagick_filename}" "${php_modules_install}" && install_php_imagesmagick "${phpConfig}"
-    if_in_array "${php_memcached_filename}" "${php_modules_install}" && install_php_memcached "${phpConfig}"
     if_in_array "${php_mongo_filename}" "${php_modules_install}" && install_php_mongo "${phpConfig}"
     if_in_array "${swoole_filename}" "${php_modules_install}" && install_swoole "${phpConfig}"
-    if_in_array "${xdebug_filename}" "${php_modules_install}" && install_xdebug "${phpConfig}"
-    if [ "${php}" == "${php7_0_filename}" ] || [ "${php}" == "${php7_1_filename}" ]; then
-        if_in_array "${php_graphicsmagick_filename2}" "${php_modules_install}" && install_php_graphicsmagick "${phpConfig}"
-        if_in_array "${php_redis_filename2}" "${php_modules_install}" && install_php_redis "${phpConfig}"
-    else
+    if [ "${php}" == "${php5_6_filename}" ]; then
+        if_in_array "${xdebug_filename}" "${php_modules_install}" && install_xdebug "${phpConfig}"
         if_in_array "${php_graphicsmagick_filename}" "${php_modules_install}" && install_php_graphicsmagick "${phpConfig}"
         if_in_array "${php_redis_filename}" "${php_modules_install}" && install_php_redis "${phpConfig}"
+        if_in_array "${php_memcached_filename}" "${php_modules_install}" && install_php_memcached "${phpConfig}"
+    else
+        if_in_array "${xdebug_filename2}" "${php_modules_install}" && install_xdebug "${phpConfig}"
+        if_in_array "${php_libsodium_filename}" "${php_modules_install}" && install_php_libsodium "${phpConfig}"
+        if_in_array "${php_graphicsmagick_filename2}" "${php_modules_install}" && install_php_graphicsmagick "${phpConfig}"
+        if_in_array "${php_redis_filename2}" "${php_modules_install}" && install_php_redis "${phpConfig}"
+        if_in_array "${php_memcached_filename2}" "${php_modules_install}" && install_php_memcached "${phpConfig}"
     fi
 }
 
@@ -91,7 +83,7 @@ install_php_depends(){
     if check_sys packageManager apt; then
         apt_depends=(
             autoconf patch m4 bison libbz2-dev libgmp-dev libicu-dev libldb-dev libpam0g-dev
-            libldap-2.4-2 libldap2-dev libsasl2-dev libsasl2-modules-ldap
+            libldap-2.4-2 libldap2-dev libsasl2-dev libsasl2-modules-ldap libc-client2007e-dev libkrb5-dev
             autoconf2.13 pkg-config libxslt1-dev zlib1g-dev libpcre3-dev libtool unixodbc-dev libtidy-dev
             libjpeg-dev libpng-dev libfreetype6-dev libpspell-dev libmhash-dev libenchant-dev libmcrypt-dev
             libcurl4-gnutls-dev libwebp-dev libxpm-dev libvpx-dev libreadline-dev snmp libsnmp-dev
@@ -104,7 +96,9 @@ install_php_depends(){
         log "Info" "Install dependencies packages for PHP completed..."
 
         if is_64bit; then
-            [ ! -d /usr/lib64 ] && mkdir /usr/lib64
+            if [ ! -d /usr/lib64 ] && [ -d /usr/lib ]; then
+                ln -sf /usr/lib /usr/lib64
+            fi
 
             if [ -f /usr/include/gmp-x86_64.h ]; then
                 ln -sf /usr/include/gmp-x86_64.h /usr/include/
@@ -118,6 +112,9 @@ install_php_depends(){
             if [ -d /usr/include/x86_64-linux-gnu/curl ] && [ ! -d /usr/include/curl ]; then
                 ln -sf /usr/include/x86_64-linux-gnu/curl /usr/include/
             fi
+
+            create_lib_link libc-client.a
+            create_lib_link libc-client.so
         else
             if [ -f /usr/include/gmp-i386.h ]; then
                 ln -sf /usr/include/gmp-i386.h /usr/include/
@@ -150,9 +147,9 @@ install_php_depends(){
         install_mhash
         install_libmcrypt
         install_mcrypt
+        check_installed "install_imap" "${depends_prefix}/imap"
     fi
 
-    check_installed "install_imap" "${depends_prefix}/imap"
     install_libiconv
     install_re2c
 
@@ -304,7 +301,7 @@ install_nghttp2(){
             export OPENSSL_CFLAGS="-I${openssl_location}/include"
             export OPENSSL_LIBS="-L${openssl_location}/lib -lssl -lcrypto"
         fi
-        error_detect "./configure --prefix=/usr --disable-examples"
+        error_detect "./configure --prefix=/usr --enable-lib-only"
         error_detect "parallel_make"
         error_detect "make install"
         unset OPENSSL_CFLAGS
@@ -340,7 +337,7 @@ install_openssl(){
 
 
 install_phpmyadmin(){
-    if [ -d ${web_root_dir}/phpmyadmin ];then
+    if [ -d "${web_root_dir}/phpmyadmin" ]; then
         rm -rf ${web_root_dir}/phpmyadmin
     fi
 
@@ -350,76 +347,29 @@ install_phpmyadmin(){
     download_file "${phpmyadmin}.tar.gz"
     tar zxf ${phpmyadmin}.tar.gz
     mv ${phpmyadmin} ${web_root_dir}/phpmyadmin
-    if [ "${phpmyadmin}" == "${phpmyadmin_filename}" ]; then
-        cp -f ${cur_dir}/conf/config.inc.php ${web_root_dir}/phpmyadmin/config.inc.php
-    elif [ "${phpmyadmin}" == "${phpmyadmin_filename2}" ]; then
-        cp -f ${cur_dir}/conf/config.inc_new.php ${web_root_dir}/phpmyadmin/config.inc.php
-    fi
+    cp -f ${cur_dir}/conf/config.inc_new.php ${web_root_dir}/phpmyadmin/config.inc.php
     mkdir -p ${web_root_dir}/phpmyadmin/{upload,save}
     chown -R apache:apache ${web_root_dir}/phpmyadmin
     log "Info" "${phpmyadmin} install completed..."
 }
 
 
-install_ZendGuardLoader(){
-    local phpConfig=${1}
-    local php_version=`get_php_version "${phpConfig}"`
-    local php_extension_dir=`get_php_extension_dir "${phpConfig}"`
+install_kodexplorer(){
+    if [ -d "${web_root_dir}/kod" ]; then
+        rm -rf ${web_root_dir}/kod
+    fi
 
     cd ${cur_dir}/software
 
-    log "Info" "ZendGuardLoader install start..."
-    if is_64bit; then
-        if [ "$php_version" == "5.3" ]; then
-            download_file "${ZendGuardLoader53_64_filename}.tar.gz"
-            tar zxf ${ZendGuardLoader53_64_filename}.tar.gz
-            cp -pf ${ZendGuardLoader53_64_filename}/php-${php_version}.x/ZendGuardLoader.so ${php_extension_dir}/
-        elif [ "$php_version" == "5.4" ]; then
-            download_file "${ZendGuardLoader54_64_filename}.tar.gz"
-            tar zxf ${ZendGuardLoader54_64_filename}.tar.gz
-            cp -pf ${ZendGuardLoader54_64_filename}/php-${php_version}.x/ZendGuardLoader.so ${php_extension_dir}/
-        elif [ "$php_version" == "5.5" ]; then
-            download_file "${ZendGuardLoader55_64_filename}.tar.gz"
-            tar zxf ${ZendGuardLoader55_64_filename}.tar.gz
-            cp -pf ${ZendGuardLoader55_64_filename}/ZendGuardLoader.so ${php_extension_dir}/
-        elif [ "$php_version" == "5.6" ]; then
-            download_file "${ZendGuardLoader56_64_filename}.tar.gz"
-            tar zxf ${ZendGuardLoader56_64_filename}.tar.gz
-            cp -pf ${ZendGuardLoader56_64_filename}/ZendGuardLoader.so ${php_extension_dir}/
-        fi
-    else
-        if [ "$php_version" == "5.3" ]; then
-            download_file  "${ZendGuardLoader53_32_filename}.tar.gz"
-            tar zxf ${ZendGuardLoader53_32_filename}.tar.gz
-            cp -pf ${ZendGuardLoader53_32_filename}/php-${php_version}.x/ZendGuardLoader.so ${php_extension_dir}/
-        elif [ "$php_version" == "5.4" ]; then
-            download_file  "${ZendGuardLoader54_32_filename}.tar.gz"
-            tar zxf ${ZendGuardLoader54_32_filename}.tar.gz
-            cp -pf ${ZendGuardLoader54_32_filename}/php-${php_version}.x/ZendGuardLoader.so ${php_extension_dir}/
-        elif [ "$php_version" == "5.5" ]; then
-            download_file "${ZendGuardLoader55_32_filename}.tar.gz"
-            tar zxf ${ZendGuardLoader55_32_filename}.tar.gz
-            cp -pf ${ZendGuardLoader55_32_filename}/ZendGuardLoader.so ${php_extension_dir}/
-        elif [ "$php_version" == "5.6" ]; then
-            download_file "${ZendGuardLoader56_32_filename}.tar.gz"
-            tar zxf ${ZendGuardLoader56_32_filename}.tar.gz
-            cp -pf ${ZendGuardLoader56_32_filename}/ZendGuardLoader.so ${php_extension_dir}/
-        fi
-    fi
-
-    if [ ! -f ${php_location}/php.d/zend.ini ]; then
-        log "Info" "ZendGuardLoader configuration file not found, create it!"
-        cat > ${php_location}/php.d/zend.ini<<-EOF
-[Zend Guard]
-zend_extension = ${php_extension_dir}/ZendGuardLoader.so
-
-zend_loader.enable = 1
-zend_loader.disable_licensing = 0
-zend_loader.obfuscation_level_support = 3
-zend_loader.license_path =
-EOF
-    fi
-    log "Info" "ZendGuardLoader install completed..."
+    log "Info" "${kodexplorer} install start..."
+    kod_version=$(echo ${kodexplorer} | grep -oE '[0-9]+\.[0-9]+')
+    kod_url1="https://github.com/kalcaddle/kodfile/archive/${kod_version}.tar.gz"
+    kod_url2="${download_root_url}/${kodexplorer}.tar.gz"
+    download_from_url "${kodexplorer}.tar.gz" "${kod_url1}" "${kod_url2}"
+    tar zxf ${kodexplorer}.tar.gz
+    mv ${kodexplorer} ${web_root_dir}/kod
+    chown -R apache:apache ${web_root_dir}/kod
+    log "Info" "${kodexplorer} install completed..."
 }
 
 
@@ -434,56 +384,21 @@ install_ionCube(){
     if is_64bit; then
         download_file  "${ionCube64_filename}.tar.gz"
         tar zxf ${ionCube64_filename}.tar.gz
-        cp -pf ioncube/ioncube_loader_lin_${php_version}.so ${php_extension_dir}/
+        cp -pf ioncube/ioncube_loader_lin_${php_version}_ts.so ${php_extension_dir}/
     else
         download_file  "${ionCube32_filename}.tar.gz"
         tar zxf ${ionCube32_filename}.tar.gz
-        cp -pf ioncube/ioncube_loader_lin_${php_version}.so ${php_extension_dir}/
+        cp -pf ioncube/ioncube_loader_lin_${php_version}_ts.so ${php_extension_dir}/
     fi
 
     if [ ! -f ${php_location}/php.d/ioncube.ini ]; then
         log "Info" "ionCube Loader configuration file not found, create it!"
         cat > ${php_location}/php.d/ioncube.ini<<-EOF
 [ionCube Loader]
-zend_extension = ${php_extension_dir}/ioncube_loader_lin_${php_version}.so
+zend_extension = ${php_extension_dir}/ioncube_loader_lin_${php_version}_ts.so
 EOF
     fi
     log "Info" "ionCube Loader install completed..."
-}
-
-
-install_opcache(){
-    local phpConfig=${1}
-    local php_version=`get_php_version "${phpConfig}"`
-    local php_extension_dir=`get_php_extension_dir "${phpConfig}"`
-
-    cd ${cur_dir}/software/
-
-    log "Info" "opcache install start..."
-    download_file "${opcache_filename}.tgz"
-    tar zxf ${opcache_filename}.tgz
-    cd ${opcache_filename}
-    error_detect "${php_location}/bin/phpize"
-    error_detect "./configure --with-php-config=${phpConfig}"
-    error_detect "make"
-    error_detect "make install"
-    if [ ! -f ${php_location}/php.d/opcache.ini ]; then
-        log "Info" "opcache configuration file not found, create it!"
-        cat > ${php_location}/php.d/opcache.ini<<-EOF
-[opcache]
-zend_extension = ${php_extension_dir}/opcache.so
-opcache.enable_cli=1
-opcache.memory_consumption=128
-opcache.interned_strings_buffer=8
-opcache.max_accelerated_files=4000
-opcache.revalidate_freq=60
-opcache.fast_shutdown=1
-opcache.save_comments=0
-EOF
-    fi
-    cp -f ${cur_dir}/conf/ocp.php ${web_root_dir}/ocp.php
-    chown apache:apache ${web_root_dir}/ocp.php
-    log "Info" "opcache install completed..."
 }
 
 
@@ -554,6 +469,42 @@ EOF
 }
 
 
+install_php_libsodium(){
+    local phpConfig=${1}
+    local php_version=`get_php_version "${phpConfig}"`
+    local php_extension_dir=`get_php_extension_dir "${phpConfig}"`
+
+    cd ${cur_dir}/software/
+
+    log "Info" "php-libsodium install start..."
+    download_file "${libsodium_filename}.tar.gz"
+    tar zxf ${libsodium_filename}.tar.gz
+    cd ${libsodium_filename}
+    error_detect "./configure --prefix=/usr"
+    error_detect "make"
+    error_detect "make install"
+
+    cd ${cur_dir}/software/
+
+    download_file "${php_libsodium_filename}.tar.gz"
+    tar zxf ${php_libsodium_filename}.tar.gz
+    cd ${php_libsodium_filename}
+    error_detect "${php_location}/bin/phpize"
+    error_detect "./configure --with-php-config=${phpConfig}"
+    error_detect "make"
+    error_detect "make install"
+    
+    if [ ! -f ${php_location}/php.d/sodium.ini ]; then
+        log "Info" "libsodium configuration file not found, create it!"
+        cat > ${php_location}/php.d/sodium.ini<<-EOF
+[sodium]
+extension = ${php_extension_dir}/sodium.so
+EOF
+    fi
+    log "Info" "php-libsodium install completed..."
+}
+
+
 install_php_imagesmagick(){
     local phpConfig=${1}
     local php_version=`get_php_version "${phpConfig}"`
@@ -607,14 +558,14 @@ install_php_graphicsmagick(){
 
     cd ${cur_dir}/software/
 
-    if [ "$php" == "${php7_0_filename}" ] || [ "$php" == "${php7_1_filename}" ]; then
-        download_file "${php_graphicsmagick_filename2}.tgz"
-        tar zxf ${php_graphicsmagick_filename2}.tgz
-        cd ${php_graphicsmagick_filename2}
-    else
+    if [ "$php" == "${php5_6_filename}" ]; then
         download_file "${php_graphicsmagick_filename}.tgz"
         tar zxf ${php_graphicsmagick_filename}.tgz
         cd ${php_graphicsmagick_filename}
+    else
+        download_file "${php_graphicsmagick_filename2}.tgz"
+        tar zxf ${php_graphicsmagick_filename2}.tgz
+        cd ${php_graphicsmagick_filename2}
     fi
 
     error_detect "${php_location}/bin/phpize"
@@ -681,26 +632,6 @@ install_php_memcached(){
 
     cd ${cur_dir}/software
 
-    log "Info" "php-memcache install start..."
-    download_file "${php_memcache_filename}.tgz"
-    tar xzf ${php_memcache_filename}.tgz
-    cd ${php_memcache_filename}
-    error_detect "${php_location}/bin/phpize"
-    error_detect "./configure --enable-memcache --with-php-config=${phpConfig}"
-    error_detect "make"
-    error_detect "make install"
-    
-    if [ ! -f ${php_location}/php.d/memcache.ini ]; then
-        log "Info" "php-memcache configuration file not found, create it!"
-        cat > ${php_location}/php.d/memcache.ini<<-EOF
-[memcache]
-extension = ${php_extension_dir}/memcache.so
-EOF
-    fi
-    log "Info" "php-memcache install completed..."
-    
-    cd ${cur_dir}/software
-    
     log "Info" "libmemcached install start..."
     if check_sys packageManager apt;then
         apt-get -y install libsasl2-dev
@@ -718,9 +649,15 @@ EOF
     cd ${cur_dir}/software
     
     log "Info" "php-memcached extension install start..."
-    download_file "${php_memcached_filename}.tgz"
-    tar zxf ${php_memcached_filename}.tgz
-    cd ${php_memcached_filename}
+    if [ "$php" == "${php5_6_filename}" ]; then
+        download_file "${php_memcached_filename}.tgz"
+        tar zxf ${php_memcached_filename}.tgz
+        cd ${php_memcached_filename}
+    else
+        download_file "${php_memcached_filename2}.tgz"
+        tar zxf ${php_memcached_filename2}.tgz
+        cd ${php_memcached_filename2}
+    fi
     error_detect "${php_location}/bin/phpize"
     error_detect "./configure --with-php-config=${phpConfig}"
     error_detect "make"
@@ -759,7 +696,7 @@ install_php_redis(){
 
     if [ -f "src/redis-server" ]; then
         mkdir -p ${redis_install_dir}/{bin,etc,var}
-        cp src/{redis-benchmark,redis-check-aof,redis-check-dump,redis-cli,redis-sentinel,redis-server} ${redis_install_dir}/bin/
+        cp src/{redis-benchmark,redis-check-aof,redis-check-rdb,redis-cli,redis-sentinel,redis-server} ${redis_install_dir}/bin/
         cp redis.conf ${redis_install_dir}/etc/
         ln -s ${redis_install_dir}/bin/* /usr/local/bin/
         sed -i 's@pidfile.*@pidfile /var/run/redis.pid@' ${redis_install_dir}/etc/redis.conf
@@ -788,14 +725,14 @@ install_php_redis(){
     if [ ${RT} -eq 0 ]; then
         cd ${cur_dir}/software/
         log "Info" "php-redis install start..."
-        if [ "$php" == "${php7_0_filename}" ] || [ "$php" == "${php7_1_filename}" ]; then
-            download_file  "${php_redis_filename2}.tgz"
-            tar zxf ${php_redis_filename2}.tgz
-            cd ${php_redis_filename2}
-        else
+        if [ "$php" == "${php5_6_filename}" ]; then
             download_file  "${php_redis_filename}.tgz"
             tar zxf ${php_redis_filename}.tgz
             cd ${php_redis_filename}
+        else
+            download_file  "${php_redis_filename2}.tgz"
+            tar zxf ${php_redis_filename2}.tgz
+            cd ${php_redis_filename2}
         fi
 
         error_detect "${php_location}/bin/phpize"
@@ -877,9 +814,15 @@ install_xdebug(){
     cd ${cur_dir}/software/
 
     log "Info" "xdebug install start..."
-    download_file "${xdebug_filename}.tgz"
-    tar zxf ${xdebug_filename}.tgz
-    cd ${xdebug_filename}
+    if [ "$php" == "${php5_6_filename}" ]; then
+        download_file "${xdebug_filename}.tgz"
+        tar zxf ${xdebug_filename}.tgz
+        cd ${xdebug_filename}
+    else
+        download_file "${xdebug_filename2}.tgz"
+        tar zxf ${xdebug_filename2}.tgz
+        cd ${xdebug_filename2}
+    fi
     error_detect "${php_location}/bin/phpize"
     error_detect "./configure --enable-xdebug --with-php-config=${phpConfig}"
     error_detect "make"
